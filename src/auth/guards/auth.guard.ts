@@ -1,25 +1,39 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 
+import { JwtPayload, decode } from 'jsonwebtoken';
 import { Observable } from 'rxjs';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
-    try {
-      const authHeader = req.headers.authorization;
-      const bearer = authHeader.split(' ')[0];
-      const token = authHeader.split(' ')[1];
-      if (bearer !== 'Bearer' || !token) {
-        throw new UnauthorizedException({ message: 'користувач не авторизований' });
-      }
-      const user = this.jwtService.verify(token);
-      req.user = user;
-      return true;
-    } catch (e) {
-      throw new UnauthorizedException('користувач не авторизований');
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      throw new UnauthorizedException({ message: 'unauthorized' });
     }
+
+    const [bearer, token] = authHeader.split(' ');
+
+    if (bearer !== 'Bearer' || !token) {
+      throw new UnauthorizedException({ message: 'unauthorized' });
+    }
+
+    const user = decode(token) as JwtPayload;
+
+    if (!user || typeof user !== 'object') {
+      throw new UnauthorizedException({ message: 'unauthorized' });
+    }
+
+    const expiration = user.exp;
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    if (expiration && currentTime > expiration) {
+      throw new UnauthorizedException({ message: 'Token has expired' });
+    }
+
+    req.ctx = user;
+
+    return true;
   }
 }

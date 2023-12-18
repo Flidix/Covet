@@ -1,10 +1,11 @@
 import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 
-import { UserEntity } from '../../user/entities/user.entity';
+import { AuthenticationContext } from '../types';
 
-export const CurrentUser = createParamDecorator((data: keyof UserEntity, ctx: ExecutionContext) => {
-  const request = ctx.switchToHttp().getRequest();
-  const user = request.user;
+export const CurrentUser = createParamDecorator(
+  (field: keyof AuthenticationContext | undefined, context: ExecutionContext) => {
+    const { ctx } = context.switchToHttp().getRequest();
 
-  return data ? user[data] : user;
-});
+    return field ? ctx[field] : ctx;
+  },
+);

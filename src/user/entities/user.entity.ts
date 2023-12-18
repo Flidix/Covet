@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '@shared/database/entities/base.entity';
+import { UserToGroupEntity } from 'src/group/entities/user-to-group.entity';
 
 import { databaseTables } from '@shared/database/constants';
 
@@ -17,4 +18,7 @@ export class UserEntity extends BaseEntity {
 
   @CreateDateColumn()
   lastLoginAt: Date;
+
+  @OneToMany(() => UserToGroupEntity, (userToGroup) => userToGroup.user)
+  userToGroups?: UserToGroupEntity[];
 }

@@ -23,5 +23,11 @@
     "^./[^s]",
     "^[./]"
   ],
-  "importOrderParserPlugins": ["typescript", "decorators-legacy"]
+  "importOrderParserPlugins": ["typescript", "decorators-legacy"],
+  "prettier/prettier": [
+    "error",
+    {
+      "endOfLine": "auto"
+    }
+  ]
 }

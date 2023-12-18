@@ -14,6 +14,9 @@ module.exports = {
     },
     ignorePatterns: ['.eslintrc.js'],
     rules: {
+      'prettier/prettier': ["error",{
+        "endOfLine": "auto"}
+      ],
       quotes: [1, 'single'],
       'object-curly-spacing': [1, 'always'],
       'max-len': ['error', { code: 140, ignoreStrings: true }],

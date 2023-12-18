@@ -1,5 +1,5 @@
 export class AddUserToGroup {
-    groupId: number;
+  groupId: number;
 
-    userId: number;
+  userId: number;
 }

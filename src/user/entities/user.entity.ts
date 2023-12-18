@@ -1,5 +1,7 @@
 import { Column, CreateDateColumn, Entity, OneToMany } from 'typeorm';
 
+import { Environment } from '@shared/variables/environment';
+
 import { BaseEntity } from '@shared/database/entities/base.entity';
 import { UserToGroupEntity } from 'src/group/entities/user-to-group.entity';
 
@@ -18,6 +20,9 @@ export class UserEntity extends BaseEntity {
 
   @CreateDateColumn()
   lastLoginAt: Date;
+
+  @Column({ default: Environment.S3_BUCKET_USER_DEfAULT_PATH })
+  userAvatar: string;
 
   @OneToMany(() => UserToGroupEntity, (userToGroup) => userToGroup.user)
   userToGroups?: UserToGroupEntity[];

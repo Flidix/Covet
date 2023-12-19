@@ -9,6 +9,7 @@ import { DatabaseService } from '@shared/database/services/database.service';
 
 import { AddUserToGroup } from './dtos/addUserToGroup';
 import { SendMessageDto } from './dtos/send-message.dto';
+import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
 
 import { SocketEventPayload } from './types';
 
@@ -37,5 +38,19 @@ export class ChatService extends DatabaseService {
 
     socket.join(`${dto.groupId}`);
     server.to(`${dto.groupId}`).emit('join', { user });
+  }
+
+  async deleteGroup(dto: DeleteGroupDto, userId: number, socket, server) {
+    await this.database.userToGroups.findOneOrFail({
+      where: { groupId: dto.groupId, userId: userId },
+    });
+
+    const deletedGroup = await this.groupService.deleteGroup(userId, dto.groupId);
+
+    server.to(`${dto.groupId}`).emit('groupDeleted', { groupId: dto.groupId });
+
+    socket.leave(`${dto.groupId}`);
+
+    return deletedGroup;
   }
 }

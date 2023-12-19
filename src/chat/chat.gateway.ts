@@ -17,6 +17,7 @@ import { SocketCtx } from '../auth/decorators/socket-ctx.decorator';
 
 import { AddUserToGroup } from './dtos/addUserToGroup';
 import { SendMessageDto } from './dtos/send-message.dto';
+import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
 
 @UseGuards(WebSocketAuthGuard)
 @WebSocketGateway(3001, {
@@ -50,5 +51,14 @@ export class ChatGateway {
     @MessageBody() body: AddUserToGroup,
   ) {
     return this.chatService.addUserToGroup(body, userId, socket, this.server);
+  }
+
+  @SubscribeMessage('delete')
+  onDelete(
+    @ConnectedSocket() socket: Socket,
+    @SocketCtx() userId: number,
+    @MessageBody() dto: DeleteGroupDto,
+  ) {
+    return this.chatService.deleteGroup(dto, userId, socket, this.server);
   }
 }

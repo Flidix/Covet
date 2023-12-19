@@ -51,4 +51,11 @@ export class GroupService extends DatabaseService {
       },
     });
   }
+
+  async deleteGroup(userId: number, groupId: number) {
+    await this.database.groups.findOneOrFail({ where: { id: groupId, userId } });
+    await this.database.userToGroups.delete({ groupId });
+    await this.database.groups.delete({ id: groupId });
+    return true;
+  }
 }

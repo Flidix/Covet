@@ -53,4 +53,16 @@ export class ChatService extends DatabaseService {
 
     return deletedGroup;
   }
+
+  async leaveGroup(dto: DeleteGroupDto, userId: number, socket, server) {
+    await this.database.userToGroups.findOneOrFail({
+      where: { groupId: dto.groupId, userId: userId },
+    });
+    const leaveGroup = await this.groupService.leaveGroup(dto, userId);
+
+    server.to(`${dto.groupId}`).emit('groupLeave', { groupId: dto.groupId });
+    socket.leave(`${dto.groupId}`);
+
+    return leaveGroup;
+  }
 }

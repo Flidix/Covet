@@ -4,6 +4,7 @@ import { DatabaseService } from '@shared/database/services/database.service';
 
 import { AddUserToGroup } from '../chat/dtos/addUserToGroup';
 import { CreateGroupDto } from './dtos/Create-group.dto';
+import { LeaveGroupDto } from './dtos/leave-group.dto';
 
 @Injectable()
 export class GroupService extends DatabaseService {
@@ -58,5 +59,13 @@ export class GroupService extends DatabaseService {
     await this.database.groups.delete({ id: groupId });
     await this.database.messages.delete({ groupId });
     return true;
+  }
+
+  async leaveGroup(dto: LeaveGroupDto, userId: number) {
+    const userOnGroup = await this.database.userToGroups.findOneOrFail({
+      where: { userId, groupId: dto.groupId },
+    });
+
+    await this.database.userToGroups.delete({ id: userOnGroup.id });
   }
 }

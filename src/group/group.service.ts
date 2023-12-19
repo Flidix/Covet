@@ -56,6 +56,7 @@ export class GroupService extends DatabaseService {
     await this.database.groups.findOneOrFail({ where: { id: groupId, userId } });
     await this.database.userToGroups.delete({ groupId });
     await this.database.groups.delete({ id: groupId });
+    await this.database.messages.delete({ groupId });
     return true;
   }
 }

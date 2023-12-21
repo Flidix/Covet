@@ -93,11 +93,11 @@ export class AuthService extends DatabaseService {
 
   async issueAccessToken(userId: number, userEmail: string) {
     const refreshToken = sign({ userId: userId, email: userEmail }, Environment.JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn: '7d',
     });
 
     const accessToken = sign({ userId: userId }, Environment.JWT_SECRET, {
-      expiresIn: '7d',
+      expiresIn: '1h',
     });
     return { refreshToken, accessToken };
   }

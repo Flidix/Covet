@@ -10,23 +10,19 @@ export class WebSocketAuthGuard implements CanActivate {
     try {
       const token = socket.handshake.headers.authorization;
       if (!token) {
+        console.log('Unauthorized: No token provided');
         throw new UnauthorizedException({ message: 'Unauthorized' });
       }
       const user = decode(token) as JwtPayload;
-      if (!token || !user) {
+      if (!user) {
+        console.log('Unauthorized: Invalid token');
         throw new UnauthorizedException({ message: 'Unauthorized' });
-      }
-
-      const expiration = user.exp;
-      const currentTime = Math.floor(Date.now() / 1000);
-
-      if (expiration && currentTime > expiration) {
-        throw new UnauthorizedException({ message: 'Token has expired' });
       }
 
       socket.handshake.auth = user;
       return true;
     } catch (e) {
+      console.log('Unauthorized: Unknown error');
       throw new UnauthorizedException('Unauthorized');
     }
   }

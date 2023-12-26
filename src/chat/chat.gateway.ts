@@ -17,6 +17,7 @@ import { SocketCtx } from '../auth/decorators/socket-ctx.decorator';
 
 import { AddUserToGroup } from './dtos/addUserToGroup';
 import { SendMessageDto } from './dtos/send-message.dto';
+import { CreateGroupDto } from 'src/group/dtos/Create-group.dto';
 import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
 import { LeaveGroupDto } from 'src/group/dtos/leave-group.dto';
 
@@ -52,6 +53,15 @@ export class ChatGateway {
     @MessageBody() body: AddUserToGroup,
   ) {
     return this.chatService.addUserToGroup(body, userId, socket, this.server);
+  }
+
+  @SubscribeMessage('create')
+  onCreate(
+    @ConnectedSocket() socket: Socket,
+    @SocketCtx('userId') userId: number,
+    @MessageBody() body: CreateGroupDto,
+  ) {
+    return this.chatService.createTGroup(body, userId, socket, this.server);
   }
 
   @SubscribeMessage('delete')

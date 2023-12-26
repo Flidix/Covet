@@ -9,6 +9,7 @@ import { DatabaseService } from '@shared/database/services/database.service';
 
 import { AddUserToGroup } from './dtos/addUserToGroup';
 import { SendMessageDto } from './dtos/send-message.dto';
+import { CreateGroupDto } from 'src/group/dtos/Create-group.dto';
 import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
 
 import { SocketEventPayload } from './types';
@@ -38,6 +39,13 @@ export class ChatService extends DatabaseService {
 
     socket.join(`${dto.groupId}`);
     server.to(`${dto.groupId}`).emit('join', { user });
+  }
+
+  async createTGroup(dto: CreateGroupDto, userId: number, socket, server) {
+    const group = await this.groupService.createGroup(dto, userId);
+
+    socket.join(`${group.id}`);
+    server.to(`${group.id}`).emit('create', { group });
   }
 
   async deleteGroup(dto: DeleteGroupDto, userId: number, socket, server) {

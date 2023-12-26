@@ -20,7 +20,7 @@ export class GroupController {
 
   @Get('my-groups')
   getMyGroups(@CurrentUser('userId') userId: number) {
-    return this.groupService.getGroups(userId);
+    return this.groupService.getUserGroup(userId);
   }
 
   @Get(':id')

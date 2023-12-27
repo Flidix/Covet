@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 
 import { GroupService } from './group.service';
 
@@ -8,10 +8,15 @@ import { CurrentUser } from '../auth/decorators/currentUser';
 
 import { CreateGroupDto } from './dtos/Create-group.dto';
 
+import { ChatGateway } from './../chat/chat.gateway';
+
 @UseGuards(JwtAuthGuard)
 @Controller('group')
 export class GroupController {
-  constructor(private readonly groupService: GroupService) {}
+  constructor(
+    private readonly groupService: GroupService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
 
   @Post()
   createGroup(@CurrentUser('userId') userId: number, @Body() dto: CreateGroupDto) {

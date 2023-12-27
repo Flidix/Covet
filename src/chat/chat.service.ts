@@ -45,7 +45,7 @@ export class ChatService extends DatabaseService {
     const group = await this.groupService.createGroup(dto, userId);
 
     socket.join(`${group.id}`);
-    server.to(`${group.id}`).emit('create', { group });
+    server.emit('create', { group });
   }
 
   async deleteGroup(dto: DeleteGroupDto, userId: number, socket, server) {

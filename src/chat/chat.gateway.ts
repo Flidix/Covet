@@ -24,7 +24,8 @@ import { LeaveGroupDto } from 'src/group/dtos/leave-group.dto';
 @UseGuards(WebSocketAuthGuard)
 @WebSocketGateway(3001, {
   cors: {
-    origin: '*',
+    origin: 'http://localhost:5173',
+    credentials: true,
   },
 })
 export class ChatGateway {

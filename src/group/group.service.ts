@@ -37,7 +37,10 @@ export class GroupService extends DatabaseService {
   }
 
   async getUserGroup(userId: number) {
-    return await this.database.userToGroups.findAllOrFail({ where: { userId } });
+    return await this.database.userToGroups.findAllOrFail({
+      where: { userId },
+      relations: { group: true },
+    });
   }
 
   async getGroup(userId: number, groupId: number) {

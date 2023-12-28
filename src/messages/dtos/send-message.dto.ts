@@ -1,11 +1,11 @@
-import {IsNotEmpty, IsNumber, IsString} from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class SendMessageDto{
-    @IsString()
-    @IsNotEmpty()
-    message: string;
+export class SendMessageDto {
+  @IsString()
+  @IsNotEmpty()
+  message: string;
 
-    @IsNumber()
-    @IsNotEmpty()
-    groupId: number;
+  @IsNumber()
+  @IsNotEmpty()
+  groupId: number;
 }

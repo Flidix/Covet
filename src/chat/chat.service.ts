@@ -28,7 +28,7 @@ export class ChatService extends DatabaseService {
     const { server, userId, groupId } = body;
     await this.database.userToGroups.findOneOrFail({ where: { groupId, userId } });
     const createMessage = await this.messagesService.sendMessage(body, userId);
-    server.to(`${groupId}`).emit('message', { ...createMessage });
+    server.emit('message', { ...createMessage });
   }
 
   async addUserToGroup(dto: AddUserToGroup, userId: number, socket, server) {

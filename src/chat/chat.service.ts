@@ -41,13 +41,6 @@ export class ChatService extends DatabaseService {
     server.to(`${group.id}`).emit('create', { group });
   }
 
-  // async createTGroup(dto: CreateGroupDto, userId: number, socket, server) {
-  //   const group = await this.groupService.createGroup(dto.name, userId);
-
-  //   socket.join(`${group.id}`);
-  //   server.to(`${group.id}`).emit('create', { group });
-  // }
-
   async addUserToGroup(dto: AddUserToGroup, userId: number, socket, server) {
     await this.database.userToGroups.findOneOrFail({
       where: { groupId: dto.groupId, userId: userId },

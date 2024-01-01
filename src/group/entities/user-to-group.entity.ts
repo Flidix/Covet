@@ -8,13 +8,13 @@ import { databaseTables } from '@shared/database/constants';
 
 @Entity({ name: databaseTables.userToGroups })
 export class UserToGroupEntity extends BaseEntity {
-  @ManyToOne(() => UserEntity, (user) => user.userToGroups)
+  @ManyToOne(() => UserEntity, (user) => user.userToGroups, { onDelete: 'CASCADE' })
   user?: UserEntity;
 
   @Column()
   userId: number;
 
-  @ManyToOne(() => GroupEntity, (group) => group.userToGroups)
+  @ManyToOne(() => GroupEntity, (group) => group.userToGroups, { onDelete: 'CASCADE' })
   group?: GroupEntity;
 
   @Column()

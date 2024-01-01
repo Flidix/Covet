@@ -18,9 +18,9 @@ export class GroupEntity extends BaseEntity {
   @Column()
   userId: number;
 
-  @OneToMany(() => MessageEntity, (message) => message.group)
+  @OneToMany(() => MessageEntity, (message) => message.group, { onDelete: 'CASCADE' })
   messages?: MessageEntity[];
 
-  @OneToMany(() => UserToGroupEntity, (userToGroup) => userToGroup.group)
+  @OneToMany(() => UserToGroupEntity, (userToGroup) => userToGroup.group, { onDelete: 'CASCADE' })
   userToGroups?: UserToGroupEntity[];
 }

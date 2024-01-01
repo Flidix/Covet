@@ -20,6 +20,6 @@ export class MessageEntity extends BaseEntity {
   @ManyToOne(() => UserEntity)
   user?: UserEntity;
 
-  @ManyToOne(() => GroupEntity, (group) => group.messages)
+  @ManyToOne(() => GroupEntity, (group) => group.messages, { onDelete: 'CASCADE' })
   group?: GroupEntity;
 }

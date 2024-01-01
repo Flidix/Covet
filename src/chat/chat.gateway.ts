@@ -35,7 +35,7 @@ export class ChatGateway {
 
   @SubscribeMessage('message')
   onMessage(
-    @SocketCtx() userId: number,
+    @SocketCtx('userId') userId: number,
     @MessageBody() dto: SendMessageDto,
     @ConnectedSocket() socket: Socket,
   ) {
@@ -47,28 +47,34 @@ export class ChatGateway {
     });
   }
 
-  @SubscribeMessage('join')
-  onJoin(
-    @ConnectedSocket() socket: Socket,
-    @SocketCtx() userId: number,
-    @MessageBody() body: AddUserToGroup,
-  ) {
-    return this.chatService.addUserToGroup(body, userId, socket, this.server);
-  }
-
   @SubscribeMessage('create')
   onCreate(
     @ConnectedSocket() socket: Socket,
     @SocketCtx('userId') userId: number,
     @MessageBody() body: CreateGroupDto,
   ) {
-    return this.chatService.createTGroup(body, userId, socket, this.server);
+    return this.chatService.createGroup({
+      server: this.server,
+      socket,
+      userId,
+      ...body,
+      groupId: userId,
+    });
+  }
+
+  @SubscribeMessage('join')
+  onJoin(
+    @ConnectedSocket() socket: Socket,
+    @SocketCtx('userId') userId: number,
+    @MessageBody() body: AddUserToGroup,
+  ) {
+    return this.chatService.addUserToGroup(body, userId, socket, this.server);
   }
 
   @SubscribeMessage('delete')
   onDelete(
     @ConnectedSocket() socket: Socket,
-    @SocketCtx() userId: number,
+    @SocketCtx('userId') userId: number,
     @MessageBody() dto: DeleteGroupDto,
   ) {
     return this.chatService.deleteGroup(dto, userId, socket, this.server);
@@ -77,9 +83,9 @@ export class ChatGateway {
   @SubscribeMessage('leave')
   onLeave(
     @ConnectedSocket() socket: Socket,
-    @SocketCtx() userId: number,
+    @SocketCtx('userId') userId: number,
     @MessageBody() dto: LeaveGroupDto,
   ) {
-    return this.chatService.deleteGroup(dto, userId, socket, this.server);
+    return this.chatService.leaveGroup(dto, userId, socket, this.server);
   }
 }

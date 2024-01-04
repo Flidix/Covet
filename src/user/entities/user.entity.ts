@@ -24,6 +24,6 @@ export class UserEntity extends BaseEntity {
   @Column({ default: Environment.S3_BUCKET_USER_DEfAULT_PATH })
   userAvatar: string;
 
-  @OneToMany(() => UserToGroupEntity, (userToGroup) => userToGroup.user)
+  @OneToMany(() => UserToGroupEntity, (userToGroup) => userToGroup.user, { onDelete: 'CASCADE' })
   userToGroups?: UserToGroupEntity[];
 }

@@ -13,11 +13,6 @@ import { CreateGroupDto } from './dtos/Create-group.dto';
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
-  @Post()
-  createGroup(@CurrentUser('userId') userId: number, @Body() dto: CreateGroupDto) {
-    return this.groupService.createGroup(dto, userId);
-  }
-
   @Get('my-groups')
   getMyGroups(@CurrentUser('userId') userId: number) {
     return this.groupService.getUserGroup(userId);

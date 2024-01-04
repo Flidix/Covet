@@ -3,15 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '@shared/database/services/database.service';
 
 import { AddUserToGroup } from '../chat/dtos/addUserToGroup';
-import { CreateGroupDto } from './dtos/Create-group.dto';
 import { LeaveGroupDto } from './dtos/leave-group.dto';
 
 @Injectable()
 export class GroupService extends DatabaseService {
-  async createGroup(dto: CreateGroupDto, userId: number) {
+  async createGroup(name: string, userId: number) {
     const user = await this.database.users.findOneOrFail({ where: { id: userId } });
     const group = await this.database.groups.create({
-      name: dto.name,
+      name,
       userId,
     });
     await this.database.userToGroups.create({
@@ -25,6 +24,7 @@ export class GroupService extends DatabaseService {
 
   async addUserToGroup(dto: AddUserToGroup) {
     const user = await this.database.users.findOneOrFail({ where: { id: dto.userId } });
+    const group = await this.database.groups.findOneOrFail({ where: { id: dto.groupId } });
     await this.database.userToGroups.checkNotExists({
       userId: dto.userId,
       groupId: dto.groupId,
@@ -33,6 +33,7 @@ export class GroupService extends DatabaseService {
       userId: dto.userId,
       groupId: dto.groupId,
       user,
+      group,
     });
   }
 
@@ -59,7 +60,7 @@ export class GroupService extends DatabaseService {
     await this.database.userToGroups.delete({ groupId });
     await this.database.groups.delete({ id: groupId });
     await this.database.messages.delete({ groupId });
-    return true;
+    return { userId, groupId };
   }
 
   async leaveGroup(dto: LeaveGroupDto, userId: number) {

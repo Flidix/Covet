@@ -11,6 +11,7 @@ import { AddUserToGroup } from './dtos/addUserToGroup';
 import { SendMessageDto } from './dtos/send-message.dto';
 import { CreateGroupDto } from 'src/group/dtos/Create-group.dto';
 import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
+import { LeaveGroupDto } from 'src/group/dtos/leave-group.dto';
 
 import { SocketEventPayload } from './types';
 
@@ -31,46 +32,36 @@ export class ChatService extends DatabaseService {
     server.emit('message', { ...createMessage });
   }
 
+  async createGroup(body: SocketEventPayload<CreateGroupDto>) {
+    const { server, userId, name, socket } = body;
+
+    const group = await this.groupService.createGroup(name, userId);
+
+    socket.join(`${group.id}`);
+    server.to(`${group.id}`).emit('create', { group });
+  }
+
   async addUserToGroup(dto: AddUserToGroup, userId: number, socket, server) {
     await this.database.userToGroups.findOneOrFail({
       where: { groupId: dto.groupId, userId: userId },
     });
-    const user = await this.groupService.addUserToGroup(dto);
+    const group = await this.groupService.addUserToGroup(dto);
 
     socket.join(`${dto.groupId}`);
-    server.to(`${dto.groupId}`).emit('join', { user });
-  }
-
-  async createTGroup(dto: CreateGroupDto, userId: number, socket, server) {
-    const group = await this.groupService.createGroup(dto, userId);
-
-    socket.join(`${group.id}`);
-    server.emit('create', { group });
+    server.emit('join', { group });
   }
 
   async deleteGroup(dto: DeleteGroupDto, userId: number, socket, server) {
-    await this.database.userToGroups.findOneOrFail({
-      where: { groupId: dto.groupId, userId: userId },
-    });
-
-    const deletedGroup = await this.groupService.deleteGroup(userId, dto.groupId);
-
-    server.to(`${dto.groupId}`).emit('groupDeleted', { groupId: dto.groupId });
+    await this.groupService.deleteGroup(userId, dto.groupId);
 
     socket.leave(`${dto.groupId}`);
-
-    return deletedGroup;
+    server.emit('delete', { groupId: dto.groupId, userId });
   }
 
-  async leaveGroup(dto: DeleteGroupDto, userId: number, socket, server) {
-    await this.database.userToGroups.findOneOrFail({
-      where: { groupId: dto.groupId, userId: userId },
-    });
-    const leaveGroup = await this.groupService.leaveGroup(dto, userId);
+  async leaveGroup(dto: LeaveGroupDto, userId: number, socket, server) {
+    await this.groupService.leaveGroup(dto, userId);
 
-    server.to(`${dto.groupId}`).emit('groupLeave', { groupId: dto.groupId });
     socket.leave(`${dto.groupId}`);
-
-    return leaveGroup;
+    server.emit('leave', { groupId: dto.groupId, userId });
   }
 }

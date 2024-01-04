@@ -4,4 +4,8 @@ export class CreateGroupDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  groupAvatar: string;
 }

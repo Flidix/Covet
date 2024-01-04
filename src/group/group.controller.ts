@@ -1,12 +1,10 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 
 import { GroupService } from './group.service';
 
 import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 
 import { CurrentUser } from '../auth/decorators/currentUser';
-
-import { CreateGroupDto } from './dtos/Create-group.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('group')

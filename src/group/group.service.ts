@@ -1,15 +1,27 @@
 import { Injectable } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+
+import { DataSource } from 'typeorm';
 
 import { DatabaseService } from '@shared/database/services/database.service';
+import { FileService, FileTypes } from 'src/file/file.service';
 
 import { AddUserToGroup } from '../chat/dtos/addUserToGroup';
 import { LeaveGroupDto } from './dtos/leave-group.dto';
 
 @Injectable()
 export class GroupService extends DatabaseService {
-  async createGroup(name: string, userId: number) {
+  constructor(
+    @InjectDataSource() datasource: DataSource,
+    private readonly fileService: FileService,
+  ) {
+    super(datasource);
+  }
+  async createGroup(name: string, userId: number, avatar?: string) {
+    const groupAvatar = await this.fileService.createFile(FileTypes.groupAvatarCovet, avatar);
     const user = await this.database.users.findOneOrFail({ where: { id: userId } });
     const group = await this.database.groups.create({
+      groupAvatar,
       name,
       userId,
     });

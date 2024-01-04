@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
 import { S3 } from 'aws-sdk';
-import * as fs from 'fs';
-import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 import { Environment } from '@shared/variables/environment';
 
 export enum FileTypes {
   userAvatarCovet = 'userAvatarCovet',
+  groupAvatarCovet = 'groupAvatarCovet',
 }
 
 @Injectable()
@@ -23,20 +23,19 @@ export class FileService {
   }
 
   async createFile(type: FileTypes, file): Promise<string> {
-    const upload = {
+    const id = uuidv4();
+    const buffer = Buffer.from(file.buffer);
+    const uploadParams = {
       Bucket: 'course-platform',
-      Body: file.buffer,
-      Key: type + '/' + file.originalname,
+      Body: buffer,
+      Key: `${type}/${id}`,
       ACL: 'public-read',
     };
-    return (await this.s3.upload(upload).promise()).Location;
-  }
-
-  removeFile(fileName: string) {
-    const filePath = path.resolve(__dirname, '..', 'static', fileName);
-
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    try {
+      const uploadedObject = await this.s3.upload(uploadParams).promise();
+      return uploadedObject.Location;
+    } catch (error) {
+      throw error;
     }
   }
 }

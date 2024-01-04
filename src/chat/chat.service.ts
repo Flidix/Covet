@@ -33,12 +33,12 @@ export class ChatService extends DatabaseService {
   }
 
   async createGroup(body: SocketEventPayload<CreateGroupDto>) {
-    const { server, userId, name, socket } = body;
+    const { server, userId, name, socket, groupAvatar } = body;
 
-    const group = await this.groupService.createGroup(name, userId);
+    const group = await this.groupService.createGroup(name, userId, groupAvatar);
 
     socket.join(`${group.id}`);
-    server.to(`${group.id}`).emit('create', { group });
+    server.emit('create', { group });
   }
 
   async addUserToGroup(dto: AddUserToGroup, userId: number, socket, server) {

@@ -18,6 +18,9 @@ export class GroupEntity extends BaseEntity {
   @Column()
   userId: number;
 
+  @Column({ default: '' })
+  groupAvatar?: string;
+
   @OneToMany(() => MessageEntity, (message) => message.group, { onDelete: 'CASCADE' })
   messages?: MessageEntity[];
 

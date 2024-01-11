@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 
+import { Server, Socket } from 'socket.io';
 import { DataSource } from 'typeorm';
 
 import { GroupService } from '../group/group.service';
@@ -9,9 +10,11 @@ import { DatabaseService } from '@shared/database/services/database.service';
 
 import { AddUserToGroup } from './dtos/addUserToGroup';
 import { SendMessageDto } from './dtos/send-message.dto';
+import { TypingDto } from './dtos/typing.dto';
 import { CreateGroupDto } from 'src/group/dtos/Create-group.dto';
 import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
 import { LeaveGroupDto } from 'src/group/dtos/leave-group.dto';
+import { DeleteMessageDto } from 'src/messages/dtos/delete-message.dto';
 
 import { SocketEventPayload } from './types';
 
@@ -23,6 +26,16 @@ export class ChatService extends DatabaseService {
     private readonly groupService: GroupService,
   ) {
     super(datasource);
+  }
+
+  async deleteMessage(body: SocketEventPayload<DeleteMessageDto>) {
+    const { messageId, server } = body;
+    const message = await this.messagesService.deleteMessage(body, messageId);
+    server.emit('delete', { ...message });
+  }
+  async isTyping(dto: TypingDto, userId: number, socket: Socket, server: Server) {
+    const user = await this.database.users.findOneOrFail({ where: { id: userId } });
+    server.emit('typing', { ...dto, user, createdAt: new Date(), userId });
   }
 
   async sendMessage(body: SocketEventPayload<SendMessageDto>) {

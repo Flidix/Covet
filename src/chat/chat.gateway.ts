@@ -17,9 +17,11 @@ import { SocketCtx } from '../auth/decorators/socket-ctx.decorator';
 
 import { AddUserToGroup } from './dtos/addUserToGroup';
 import { SendMessageDto } from './dtos/send-message.dto';
+import { TypingDto } from './dtos/typing.dto';
 import { CreateGroupDto } from 'src/group/dtos/Create-group.dto';
 import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
 import { LeaveGroupDto } from 'src/group/dtos/leave-group.dto';
+import { DeleteMessageDto } from 'src/messages/dtos/delete-message.dto';
 
 @UseGuards(WebSocketAuthGuard)
 @WebSocketGateway(3001, {
@@ -45,6 +47,15 @@ export class ChatGateway {
       userId,
       ...dto,
     });
+  }
+
+  @SubscribeMessage('typing')
+  onTyping(
+    @ConnectedSocket() socket: Socket,
+    @SocketCtx('userId') userId: number,
+    @MessageBody() dto: TypingDto,
+  ) {
+    return this.chatService.isTyping(dto, userId, socket, this.server);
   }
 
   @SubscribeMessage('create')
@@ -88,4 +99,11 @@ export class ChatGateway {
   ) {
     return this.chatService.leaveGroup(dto, userId, socket, this.server);
   }
+
+  @SubscribeMessage('deleteMessage')
+  onDeleteMessage(
+    @SocketCtx('userId') userId: number,
+    @MessageBody() dto: DeleteMessageDto,
+    @ConnectedSocket() socket: Socket,
+  ) {}
 }

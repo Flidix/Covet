@@ -82,4 +82,6 @@ export class GroupService extends DatabaseService {
 
     await this.database.userToGroups.delete({ id: userOnGroup.id });
   }
+
+  // update group
 }

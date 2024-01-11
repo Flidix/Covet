@@ -105,5 +105,12 @@ export class ChatGateway {
     @SocketCtx('userId') userId: number,
     @MessageBody() dto: DeleteMessageDto,
     @ConnectedSocket() socket: Socket,
-  ) {}
+  ) {
+    return this.chatService.deleteMessage({
+      server: this.server,
+      socket,
+      userId,
+      ...dto,
+    });
+  }
 }

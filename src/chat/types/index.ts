@@ -4,5 +4,5 @@ export type SocketEventPayload<T> = {
   server: Server;
   socket: Socket;
   userId: number;
-  groupId: number;
+  groupId?: number;
 } & T;

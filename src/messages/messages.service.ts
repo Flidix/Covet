@@ -15,4 +15,17 @@ export class MessagesService extends DatabaseService {
       ...dto,
     });
   }
+
+  async deleteMessage(messageId: number, userId: number) {
+    const message = await this.database.messages.findOneOrFail({
+      where: { id: messageId, userId },
+    });
+    await this.database.messages.delete({ id: messageId, userId });
+    return { messageId, userId: message.userId };
+  }
+
+  async updateMessage(userId: number, message: string, messageId: number) {
+    await this.database.messages.update({ id: messageId, userId }, { message: message });
+    return { messageId, userId, message };
+  }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 
+import { Server, Socket } from 'socket.io';
 import { DataSource } from 'typeorm';
 
 import { GroupService } from '../group/group.service';
@@ -9,9 +10,12 @@ import { DatabaseService } from '@shared/database/services/database.service';
 
 import { AddUserToGroup } from './dtos/addUserToGroup';
 import { SendMessageDto } from './dtos/send-message.dto';
+import { TypingDto } from './dtos/typing.dto';
 import { CreateGroupDto } from 'src/group/dtos/Create-group.dto';
 import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
 import { LeaveGroupDto } from 'src/group/dtos/leave-group.dto';
+import { DeleteMessageDto } from 'src/messages/dtos/delete-message.dto';
+import { UpdateMessageDto } from 'src/messages/dtos/update-message.dto';
 
 import { SocketEventPayload } from './types';
 
@@ -25,9 +29,27 @@ export class ChatService extends DatabaseService {
     super(datasource);
   }
 
+  async updateMessage(body: SocketEventPayload<UpdateMessageDto>) {
+    const { server, userId, message, messageId } = body;
+    const updatedMessage = await this.messagesService.updateMessage(userId, message, messageId);
+    server.emit('updateMessage', { ...updatedMessage });
+  }
+
+  async deleteMessage(body: SocketEventPayload<DeleteMessageDto>) {
+    const { messageId, server, userId } = body;
+    const message = await this.messagesService.deleteMessage(messageId, userId);
+    server.emit('deleteMessage', { ...message });
+  }
+
+  async isTyping(dto: TypingDto, userId: number, socket: Socket, server: Server) {
+    const user = await this.database.users.findOneOrFail({ where: { id: userId } });
+    server.emit('typing', { ...dto, user, createdAt: new Date(), userId });
+  }
+
   async sendMessage(body: SocketEventPayload<SendMessageDto>) {
     const { server, userId, groupId } = body;
     await this.database.userToGroups.findOneOrFail({ where: { groupId, userId } });
+
     const createMessage = await this.messagesService.sendMessage(body, userId);
     server.emit('message', { ...createMessage });
   }

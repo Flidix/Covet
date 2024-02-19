@@ -5,5 +5,5 @@ export class GroupPaginateParams {
   page: number = 1;
 
   @IsNotEmpty()
-  pageSize: number = 10;
+  pageSize: number = 5;
 }

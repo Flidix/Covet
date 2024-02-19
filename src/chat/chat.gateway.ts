@@ -22,6 +22,7 @@ import { CreateGroupDto } from 'src/group/dtos/Create-group.dto';
 import { DeleteGroupDto } from 'src/group/dtos/delete-group.dto';
 import { LeaveGroupDto } from 'src/group/dtos/leave-group.dto';
 import { DeleteMessageDto } from 'src/messages/dtos/delete-message.dto';
+import { UpdateMessageDto } from 'src/messages/dtos/update-message.dto';
 
 @UseGuards(WebSocketAuthGuard)
 @WebSocketGateway(3001, {
@@ -34,6 +35,20 @@ export class ChatGateway {
   @WebSocketServer()
   server: Server;
   constructor(private readonly chatService: ChatService) {}
+
+  @SubscribeMessage('updateMessage')
+  onUpdate(
+    @SocketCtx('userId') userId: number,
+    @MessageBody() dto: UpdateMessageDto,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    return this.chatService.updateMessage({
+      server: this.server,
+      socket,
+      userId,
+      ...dto,
+    });
+  }
 
   @SubscribeMessage('message')
   onMessage(
@@ -82,7 +97,7 @@ export class ChatGateway {
     return this.chatService.addUserToGroup(body, userId, socket, this.server);
   }
 
-  @SubscribeMessage('delete')
+  @SubscribeMessage('onDelete')
   onDelete(
     @ConnectedSocket() socket: Socket,
     @SocketCtx('userId') userId: number,
@@ -103,8 +118,8 @@ export class ChatGateway {
   @SubscribeMessage('deleteMessage')
   onDeleteMessage(
     @SocketCtx('userId') userId: number,
-    @MessageBody() dto: DeleteMessageDto,
     @ConnectedSocket() socket: Socket,
+    @MessageBody() dto: DeleteMessageDto,
   ) {
     return this.chatService.deleteMessage({
       server: this.server,

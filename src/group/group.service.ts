@@ -7,6 +7,7 @@ import { DatabaseService } from '@shared/database/services/database.service';
 import { FileService, FileTypes } from 'src/file/file.service';
 
 import { AddUserToGroup } from '../chat/dtos/addUserToGroup';
+import { GroupPaginateParams } from './dtos/group-paginate.params';
 import { LeaveGroupDto } from './dtos/leave-group.dto';
 
 @Injectable()
@@ -49,22 +50,37 @@ export class GroupService extends DatabaseService {
     });
   }
 
-  async getUserGroup(userId: number) {
+  async getUserGroup(userId: number, query: GroupPaginateParams) {
     return await this.database.userToGroups.findAllOrFail({
       where: { userId },
       relations: { group: true },
+      order: { createdAt: 'DESC' },
+      skip: (query.page - 1) * query.pageSize,
+      take: query.pageSize,
     });
   }
 
-  async getGroup(userId: number, groupId: number) {
+  async getGroup(userId: number, groupId: number, query: GroupPaginateParams) {
     await this.database.userToGroups.findOneOrFail({ where: { userId, groupId } });
-    return await this.database.groups.findOneOrFail({
+    const { page, pageSize } = query;
+    const messages = await this.database.messages.findAll({
+      where: { groupId },
+      relations: { user: true },
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    const group = await this.database.groups.findOneOrFail({
       where: { id: groupId },
       relations: {
         userToGroups: { user: true },
         messages: { user: true },
       },
     });
+
+    group.messages = messages.reverse();
+    return group;
   }
 
   async deleteGroup(userId: number, groupId: number) {
@@ -82,6 +98,4 @@ export class GroupService extends DatabaseService {
 
     await this.database.userToGroups.delete({ id: userOnGroup.id });
   }
-
-  // update group
 }

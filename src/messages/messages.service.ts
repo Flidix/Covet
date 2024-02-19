@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 import { DatabaseService } from '@shared/database/services/database.service';
 
-import { DeleteMessageDto } from './dtos/delete-message.dto';
 import { SendMessageDto } from './dtos/send-message.dto';
 
 @Injectable()
@@ -17,9 +16,16 @@ export class MessagesService extends DatabaseService {
     });
   }
 
-  async deleteMessage(dto: DeleteMessageDto, userId: number) {
-    await this.database.messages.delete({ id: dto.messageId, userId });
-    return { messageId: dto.messageId, userId };
+  async deleteMessage(messageId: number, userId: number) {
+    const message = await this.database.messages.findOneOrFail({
+      where: { id: messageId, userId },
+    });
+    await this.database.messages.delete({ id: messageId, userId });
+    return { messageId, userId: message.userId };
   }
-  // delete, update, paginate message
+
+  async updateMessage(userId: number, message: string, messageId: number) {
+    await this.database.messages.update({ id: messageId, userId }, { message: message });
+    return { messageId, userId, message };
+  }
 }
